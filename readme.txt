@@ -2,7 +2,7 @@
 Contributors: Donncha O Caoimh
 Tags: mastodon, comments, social media, import
 Requires at least: 5.0
-Tested up to: 6.2
+Tested up to: 6.6.2
 Stable tag: 1.0
 Requires PHP: 7.2
 License: GPLv2 or later

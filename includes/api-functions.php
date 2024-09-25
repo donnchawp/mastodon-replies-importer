@@ -26,7 +26,7 @@ class Mastodon_Replies_Importer_API {
 		) {
 			$app = $this->create_app( $instance_url );
 			if ( ! $app || isset( $app['error'] ) ) {
-				if ( isset( $app['error'] ) && $app['error'] === 'Too many requests' ) {
+				if ( isset( $app['error'] ) && 'Too many requests' === $app['error'] ) {
 					add_settings_error(
 						'mastodon_replies_importer_messages',
 						'mastodon_app_creation_error',
@@ -36,15 +36,15 @@ class Mastodon_Replies_Importer_API {
 				}
 				return false;
 			}
-			$this->debug_log( "saving client id and secret: " . print_r( $app, true ) );
+			$this->debug_log( 'saving client id and secret: ' . print_r( $app, true ) );
 			$this->config->set_connection_option( 'client_id', $app['client_id'] );
 			$this->config->set_connection_option( 'client_secret', $app['client_secret'] );
 		} else {
-			//$this->debug_log( "client id and secret already saved: " . print_r( $this->connection_options, true ) );
+			$this->debug_log( "client id and secret already saved: " . print_r( $this->connection_options, true ) );
 		}
 
 		$redirect_uri = admin_url( 'options-general.php?page=mastodon_replies_importer' );
-		$auth_url     = $instance_url . "/oauth/authorize?client_id={$this->config->get_connection_option( 'client_id' )}&redirect_uri=" . urlencode( $redirect_uri ) . '&response_type=code&scope=' . urlencode( 'read' );
+		$auth_url     = $instance_url . '/oauth/authorize?client_id=' . $this->config->get_connection_option( 'client_id' ) . '&redirect_uri=' . urlencode( $redirect_uri ) . '&response_type=code&scope=' . urlencode( 'read' );
 
 		return $auth_url;
 	}
@@ -87,7 +87,7 @@ class Mastodon_Replies_Importer_API {
 		if ( ! $this->config->get_connection_option( 'client_id' ) || ! $this->config->get_connection_option( 'client_secret' ) ) {
 			return false;
 		}
-		$redirect_uri  = admin_url( 'options-general.php?page=mastodon_replies_importer' );
+		$redirect_uri = admin_url( 'options-general.php?page=mastodon_replies_importer' );
 
 		$response = wp_remote_post(
 			$instance_url . '/oauth/token',
@@ -124,14 +124,14 @@ class Mastodon_Replies_Importer_API {
 		$website_url = home_url();
 
 		$this->debug_log(
-			"instance url: " . $this->config->get( 'mastodon_instance_url' ) .
+			'instance url: ' . $this->config->get( 'mastodon_instance_url' ) .
 			"\naccess token: " . $this->config->get_connection_option( 'access_token' )
 		);
 		// Fetch the user's Mastodon RSS feed URL
 		$user_info = wp_remote_get(
 			$this->config->get( 'mastodon_instance_url' ) . '/api/v1/accounts/verify_credentials',
-			array (
-				'headers' => array ( 'Authorization' => 'Bearer ' . $this->config->get_connection_option( 'access_token' ) ),
+			array(
+				'headers' => array( 'Authorization' => 'Bearer ' . $this->config->get_connection_option( 'access_token' ) ),
 			)
 		);
 
@@ -145,14 +145,14 @@ class Mastodon_Replies_Importer_API {
 
 		$response = wp_remote_get( $mastodon_rss_url );
 		if ( is_wp_error( $response ) ) {
-			$this->debug_log( "fetching rss error: " . $response->get_error_message() );
+			$this->debug_log( 'fetching rss error: ' . $response->get_error_message() );
 			return __( 'Failed to retrieve Mastodon RSS feed: ', 'mastodon-replies-importer' ) . $response->get_error_message();
 		}
 
 		$rss_body = wp_remote_retrieve_body( $response );
 		$rss      = simplexml_load_string( $rss_body );
 
-		$parsed_url   = parse_url( $mastodon_rss_url );
+		$parsed_url   = wp_parse_url( $mastodon_rss_url );
 		$base_api_url = $parsed_url['scheme'] . '://' . $parsed_url['host'];
 
 		// Iterate over each item in the RSS feed
@@ -164,9 +164,9 @@ class Mastodon_Replies_Importer_API {
 				$this->debug_log( 'No URL found in Mastodon post: ' . $content );
 				continue;
 			}
-			error_log( 'checking for ' . $website_url );
+			$this->debug_log( 'checking for ' . $website_url );
 			preg_match_all( '/href=["\'](' . preg_quote( $website_url, '/' ) . '[^"\']+)["\']/', $content, $matches );
-			error_log( 'matches: ' . print_r( $matches, true ) );
+			$this->debug_log( 'matches: ' . print_r( $matches, true ) );
 			$urls = array_unique( $matches[1] );
 			$this->debug_log( 'URL found in Mastodon post: ' . $content );
 			$this->debug_log( 'URLs: ' . print_r( $urls, true ) );
@@ -188,13 +188,13 @@ class Mastodon_Replies_Importer_API {
 				}
 
 				// Extract the Mastodon post ID from the link
-				$mastodon_status_id = basename( parse_url( (string) $item->link, PHP_URL_PATH ) );
-				$api_url            = $base_api_url . "/api/v1/statuses/$mastodon_status_id/context";
+				$mastodon_status_id = basename( wp_parse_url( (string) $item->link, PHP_URL_PATH ) );
+				$api_url            = $base_api_url . '/api/v1/statuses/' . $mastodon_status_id . '/context';
 
 				$api_response = wp_remote_get(
 					$api_url,
-					array (
-						'headers' => array ( 'Authorization' => 'Bearer ' . $this->config->get_connection_option( 'access_token' ) ),
+					array(
+						'headers' => array( 'Authorization' => 'Bearer ' . $this->config->get_connection_option( 'access_token' ) ),
 					)
 				);
 
@@ -206,13 +206,13 @@ class Mastodon_Replies_Importer_API {
 				$replies_data = json_decode( wp_remote_retrieve_body( $api_response ), true );
 
 				// Loop through each reply and add it as a comment
-				$comment_map = [];
+				$comment_map = array();
 				foreach ( $replies_data['descendants'] as $reply ) {
 					if ( 'private' === $reply['visibility'] || 'direct' === $reply['visibility'] ) {
 						continue;
 					}
 
-					if ( get_comments( [ 'author_url' => $reply['url'] ] ) ) {
+					if ( get_comments( array( 'author_url' => $reply['url'] ) ) ) {
 						$this->debug_log( 'Comment already exists: ' . $reply['url'] );
 						continue;
 					}
@@ -224,11 +224,11 @@ class Mastodon_Replies_Importer_API {
 					}
 					$this->debug_log( "$mastodon_status_id {$reply['id']} parent: {$reply['in_reply_to_id']} => $comment_parent<br />" );
 
-					$commentdata = [
+					$commentdata = array(
 						'comment_post_ID'    => $post_id,
 						'comment_author'     => $reply['account']['display_name'],
 						'comment_author_url' => $reply['url'],
-						'comment_content'    => strip_tags( $reply['content'] ),
+						'comment_content'    => wp_strip_all_tags( $reply['content'] ),
 						'comment_type'       => '',
 						'comment_parent'     => $comment_parent,
 						'user_id'            => 0,
@@ -236,11 +236,11 @@ class Mastodon_Replies_Importer_API {
 						'comment_agent'      => 'Mastodon',
 						'comment_date'       => gmdate( 'Y-m-d H:i:s', strtotime( $reply['created_at'] ) ),
 						'comment_approved'   => 0,
-					];
+					);
 
 					// Insert new comment and get the new comment ID
-					$comment_id = wp_insert_comment( $commentdata );
-					$comment_map[ $reply['id'] ] = $comment_id;
+					$comment_id                   = wp_insert_comment( $commentdata );
+					$comment_map[ $reply['id'] ]  = $comment_id;
 				}
 			}
 		}
@@ -254,57 +254,32 @@ class Mastodon_Replies_Importer_API {
 			return esc_html__( 'Mastodon instance URL or access token is missing.', 'mastodon-replies-importer' );
 		}
 
-		$api_url = $this->config->get( 'mastodon_instance_url' ) . '/api/v1/accounts/verify_credentials';
-		$response = wp_remote_get( $api_url, [
-			'headers' => array( 'Authorization' => 'Bearer ' . $this->config->get_connection_option( 'access_token' ) ),
-		] );
+		$api_url  = $this->config->get( 'mastodon_instance_url' ) . '/api/v1/accounts/verify_credentials';
+		$response = wp_remote_get(
+			$api_url,
+			array(
+				'headers' => array( 'Authorization' => 'Bearer ' . $this->config->get_connection_option( 'access_token' ) ),
+			)
+		);
 		if ( is_wp_error( $response ) ) {
 			$this->debug_log( 'error: ' . $response->get_error_message() );
 			return esc_html__( 'Failed to retrieve user information: ', 'mastodon-replies-importer' ) . $response->get_error_message();
 		}
-		$revoke_url = $this->config->get( 'mastodon_instance_url' ) . '/oauth/revoke';
-		$revoke_response = wp_remote_post( $revoke_url, [
-			'body' => [
-				'client_id' => $this->config->get_connection_option( 'client_id' ),
-				'client_secret' => $this->config->get_connection_option( 'client_secret' ),
-				'access_token' => $this->config->get_connection_option( 'access_token' ),
-			],
-		] );
+		$revoke_url      = $this->config->get( 'mastodon_instance_url' ) . '/oauth/revoke';
+		$revoke_response = wp_remote_post(
+			$revoke_url,
+			array(
+				'body' => array(
+					'client_id'     => $this->config->get_connection_option( 'client_id' ),
+					'client_secret' => $this->config->get_connection_option( 'client_secret' ),
+					'access_token'  => $this->config->get_connection_option( 'access_token' ),
+				),
+			)
+		);
 		if ( is_wp_error( $revoke_response ) ) {
 			$this->debug_log( 'error: ' . $revoke_response->get_error_message() );
 			return esc_html__( 'Failed to revoke access token: ', 'mastodon-replies-importer' ) . $revoke_response->get_error_message();
 		}
 		$this->config->delete_connection();
-	}
-
-	/**
-	 * Get replies from Mastodon. (unused)
-	 *
-	 * @param string $accessToken The access token.
-	 * @param string $instanceUrl The Mastodon instance URL.
-	 * @return array|false The replies data or false on failure.
-	 */
-	public function get_replies( $accessToken, $instanceUrl ) {
-		$curl = curl_init();
-		curl_setopt_array(
-			$curl,
-			[
-				CURLOPT_URL            => $instanceUrl . "/api/v1/notifications?limit=5&exclude_types[]=follow&exclude_types[]=favourite&exclude_types[]=reblog&exclude_types[]=mention",
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_HTTPHEADER     => [
-					'Authorization: Bearer ' . $accessToken,
-				],
-			]
-		);
-
-		$response = curl_exec( $curl );
-		$err      = curl_error( $curl );
-		curl_close( $curl );
-
-		if ( $err ) {
-			echo 'cURL Error #:' . $err;
-		} else {
-			return json_decode( $response, true );
-		}
 	}
 }
