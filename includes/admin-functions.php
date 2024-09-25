@@ -12,7 +12,7 @@ class Mastodon_Replies_Importer_Admin {
 	private $config;
 
 	public function __construct() {
-		$this->api = new Mastodon_Replies_Importer_API();
+		$this->api    = new Mastodon_Replies_Importer_API();
 		$this->config = Mastodon_Replies_Importer_Config::get_instance();
 	}
 
@@ -35,7 +35,7 @@ class Mastodon_Replies_Importer_Admin {
 		// Display admin notices
 		if ( isset( $_GET['message'] ) ) {
 			$message = '';
-			$type	= 'updated';
+			$type    = 'updated';
 			switch ( $_GET['message'] ) {
 				case 'instance_url_saved':
 					$message = __( 'Instance URL saved successfully.', 'mastodon-replies-importer' );
@@ -99,7 +99,7 @@ class Mastodon_Replies_Importer_Admin {
 	 */
 	public function debug_mode_render() {
 		?>
-		<input type='checkbox' name='mastodon_replies_importer_settings[debug_mode]' <?php checked( $this->config->get('debug_mode'), true ); ?>>
+		<input type='checkbox' name='mastodon_replies_importer_settings[debug_mode]' <?php checked( $this->config->get( 'debug_mode' ), true ); ?>>
 		<label for="mastodon_replies_importer_settings[debug_mode]"><?php esc_html_e( 'Enable debug logging', 'mastodon-replies-importer' ); ?></label>
 		<?php
 	}
@@ -110,9 +110,9 @@ class Mastodon_Replies_Importer_Admin {
 	public function schedule_period_render() {
 		?>
 		<select name='mastodon_replies_importer_settings[schedule_period]'>
-			<option value='hourly' <?php selected( $this->config->get('schedule_period'), 'hourly' ); ?>><?php esc_html_e( 'Once an Hour', 'mastodon-replies-importer' ); ?></option>
-			<option value='daily' <?php selected( $this->config->get('schedule_period'), 'daily' ); ?>><?php esc_html_e( 'Once a Day', 'mastodon-replies-importer' ); ?></option>
-			<option value='disabled' <?php selected( $this->config->get('schedule_period'), 'disabled' ); ?>><?php esc_html_e( 'Disabled', 'mastodon-replies-importer' ); ?></option>
+			<option value='hourly' <?php selected( $this->config->get( 'schedule_period' ), 'hourly' ); ?>><?php esc_html_e( 'Once an Hour', 'mastodon-replies-importer' ); ?></option>
+			<option value='daily' <?php selected( $this->config->get( 'schedule_period' ), 'daily' ); ?>><?php esc_html_e( 'Once a Day', 'mastodon-replies-importer' ); ?></option>
+			<option value='disabled' <?php selected( $this->config->get( 'schedule_period' ), 'disabled' ); ?>><?php esc_html_e( 'Disabled', 'mastodon-replies-importer' ); ?></option>
 		</select>
 		<?php
 	}
@@ -121,10 +121,10 @@ class Mastodon_Replies_Importer_Admin {
 	 * Render the instance URL setting field.
 	 */
 	public function instance_url_render() {
-		$this->debug_log( 'instance_url_render: ' . print_r( $this->config->get('mastodon_instance_url'), true ) );
+		$this->debug_log( 'instance_url_render: ' . print_r( $this->config->get( 'mastodon_instance_url' ), true ) );
 		?>
 		<input type='hidden' name='save_instance_url' value='1'>
-		<input type='text' name='mastodon_replies_importer_settings[mastodon_instance_url]' value='<?php echo esc_attr( $this->config->get('mastodon_instance_url') ); ?>' style="width: 300px;">
+		<input type='text' name='mastodon_replies_importer_settings[mastodon_instance_url]' value='<?php echo esc_attr( $this->config->get( 'mastodon_instance_url' ) ); ?>' style="width: 300px;">
 		<?php
 	}
 
@@ -179,26 +179,26 @@ class Mastodon_Replies_Importer_Admin {
 
 	/**
 	 * Sanitize settings.
-	 * 
+	 *
 	 * @param array $input The input data to sanitize.
 	 * @return array The sanitized input data.
 	 */
 	public function sanitize_settings( $input ) {
 		$sanitized_input = array();
-		$this->debug_log( "sanitize_settings: " . print_r( $input, true ) );
+		$this->debug_log( 'sanitize_settings: ' . print_r( $input, true ) );
 		if ( isset( $input['mastodon_instance_url'] ) ) {
 			$sanitized_input['mastodon_instance_url'] = esc_url_raw( $input['mastodon_instance_url'] );
 		}
-		
+
 		$sanitized_input['debug_mode'] = isset( $input['debug_mode'] ) ? (bool) $input['debug_mode'] : false;
 
 		$sanitized_input['schedule_period'] = isset( $input['schedule_period'] ) ? sanitize_text_field( $input['schedule_period'] ) : 'hourly';
-		$sanitized_input['client_id'] = isset( $input['client_id'] ) ? sanitize_text_field( $input['client_id'] ) : '';
-		$sanitized_input['client_secret'] = isset( $input['client_secret'] ) ? sanitize_text_field( $input['client_secret'] ) : '';
-		$sanitized_input['access_token'] = isset( $input['access_token'] ) ? sanitize_text_field( $input['access_token'] ) : '';
-		
+		$sanitized_input['client_id']       = isset( $input['client_id'] ) ? sanitize_text_field( $input['client_id'] ) : '';
+		$sanitized_input['client_secret']   = isset( $input['client_secret'] ) ? sanitize_text_field( $input['client_secret'] ) : '';
+		$sanitized_input['access_token']    = isset( $input['access_token'] ) ? sanitize_text_field( $input['access_token'] ) : '';
+
 		// Schedule or remove the import event based on the selected option
-		if ( $sanitized_input['schedule_period'] === 'disabled' ) {
+		if ( 'disabled' === $sanitized_input['schedule_period'] ) {
 			wp_clear_scheduled_hook( 'mastodon_import_event' );
 		} else {
 			$this->schedule_import();
@@ -216,7 +216,6 @@ class Mastodon_Replies_Importer_Admin {
 			return;
 		}
 		$this->debug_log( '2 handle_actions' );
-		
 
 		if ( isset( $_POST['check_now'] ) ) {
 			$this->api->fetch_and_import_mastodon_comments();
@@ -230,13 +229,13 @@ class Mastodon_Replies_Importer_Admin {
 			exit;
 		}
 
-		$this->debug_log( "3 handle_actions" );
+		$this->debug_log( '3 handle_actions' );
 		// Handle Mastodon authorization
 		if ( isset( $_GET['code'] ) && ! empty( $this->config->get( 'mastodon_instance_url' ) ) ) {
-			$this->debug_log( "4 handle_actions" );
+			$this->debug_log( '4 handle_actions' );
 			$token = $this->api->get_access_token( $this->config->get( 'mastodon_instance_url' ), sanitize_text_field( wp_unslash( $_GET['code'] ) ) );
 			if ( $token ) {
-				$this->debug_log( "5 handle_actions " . $token );
+				$this->debug_log( '5 handle_actions ' . $token );
 				$this->config->set_connection_option( 'access_token', $token );
 				wp_safe_redirect( add_query_arg( 'message', 'auth_success', remove_query_arg( 'code' ) ) );
 				exit;
@@ -252,5 +251,4 @@ class Mastodon_Replies_Importer_Admin {
 			wp_schedule_event( time() + 10, 'daily', 'mastodon_import_event' );
 		}
 	}
-
 }
