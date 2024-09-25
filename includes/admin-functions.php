@@ -33,10 +33,10 @@ class Mastodon_Replies_Importer_Admin {
 		$this->debug_log( 'options_page: ' . print_r( $this->config->get( 'mastodon_instance_url' ), true ) );
 
 		// Display admin notices
-		if ( isset( $_GET['message'] ) ) {
+		if ( isset( $_GET['message'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 			$message = '';
 			$type    = 'updated';
-			switch ( $_GET['message'] ) {
+			switch ( $_GET['message'] ) { // phpcs:ignore WordPress.Security.NonceVerification
 				case 'instance_url_saved':
 					$message = __( 'Instance URL saved successfully.', 'mastodon-replies-importer' );
 					break;
@@ -79,14 +79,17 @@ class Mastodon_Replies_Importer_Admin {
 				esc_html_e( 'Successfully authenticated with Mastodon.', 'mastodon-replies-importer' );
 				?>
 				<form action='' method='post'>
+					<?php wp_nonce_field( 'mastodon_replies_importer_check_now', 'mastodon_replies_importer_nonce' ); ?>
 					<h3><?php esc_html_e( 'Manual Import', 'mastodon-replies-importer' ); ?></h3>
 					<?php submit_button( __( 'Check Now', 'mastodon-replies-importer' ), 'secondary', 'check_now' ); ?>
+					<?php wp_nonce_field( 'mastodon_replies_importer_disconnect', 'mastodon_replies_importer_nonce' ); ?>
 					<?php submit_button( __( 'Disconnect', 'mastodon-replies-importer' ), 'secondary', 'disconnect' ); ?>
 				</form>
 				<?php
 				$next_scheduled = wp_next_scheduled( 'mastodon_import_event' );
 				if ( $next_scheduled ) {
-					echo '<p>' . sprintf( __( 'Next import scheduled for: %s', 'mastodon-replies-importer' ), date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $next_scheduled ) ) . '</p>';
+					// translators: %s is the next scheduled import date and time.
+					echo '<p>' . esc_html( sprintf( __( 'Next import scheduled for: %s', 'mastodon-replies-importer' ), date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $next_scheduled ) ) ) . '</p>';
 				}
 			}
 			?>
@@ -211,19 +214,27 @@ class Mastodon_Replies_Importer_Admin {
 	 * Handle actions on the admin page.
 	 */
 	public function handle_actions() {
-		$this->debug_log( '1 handle_actions' . print_r( $_GET, true ) . print_r( $_POST, true ) );
-		if ( ! isset( $_GET['page'] ) || 'mastodon_replies_importer' !== $_GET['page'] ) {
+		$this->debug_log( '1 handle_actions' . print_r( $_GET, true ) . print_r( $_POST, true ) ); // phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! isset( $_GET['page'] ) || 'mastodon_replies_importer' !== $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification
 			return;
 		}
 		$this->debug_log( '2 handle_actions' );
 
-		if ( isset( $_POST['check_now'] ) ) {
+		if (
+			isset( $_POST['check_now'] ) &&
+			isset( $_POST['mastodon_replies_importer_nonce'] ) &&
+			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['mastodon_replies_importer_nonce'] ) ), 'mastodon_replies_importer_check_now' )
+		) {
 			$this->api->fetch_and_import_mastodon_comments();
 			wp_safe_redirect( add_query_arg( 'message', 'import_initiated', remove_query_arg( 'code' ) ) );
 			exit;
 		}
 
-		if ( isset( $_POST['disconnect'] ) ) {
+		if (
+			isset( $_POST['disconnect'] ) &&
+			isset( $_POST['mastodon_replies_importer_nonce'] ) &&
+			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['mastodon_replies_importer_nonce'] ) ), 'mastodon_replies_importer_disconnect' )
+		) {
 			$this->api->disconnect();
 			wp_safe_redirect( add_query_arg( 'message', 'disconnect', remove_query_arg( 'code' ) ) );
 			exit;
