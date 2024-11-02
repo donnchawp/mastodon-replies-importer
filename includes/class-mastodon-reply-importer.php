@@ -22,6 +22,6 @@ class MastodonReplyImporter {
 		add_action( 'admin_menu', array( $this->admin_functions, 'add_admin_menu' ) );
 		add_action( 'admin_init', array( $this->admin_functions, 'settings_init' ) );
 		add_action( 'admin_init', array( $this->admin_functions, 'handle_actions' ) );
-		add_action( 'mastodon_import_event', array( $this, 'fetch_and_import_mastodon_comments' ) );
+		$this->admin_functions->init();
 	}
 }

@@ -16,6 +16,10 @@ class Mastodon_Replies_Importer_Admin {
 		$this->config = Mastodon_Replies_Importer_Config::get_instance();
 	}
 
+	public function init() {
+		$this->api->init();
+	}
+
 	/**
 	 * Add admin menu.
 	 */

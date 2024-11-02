@@ -13,6 +13,10 @@ class Mastodon_Replies_Importer_API {
 		$this->config = Mastodon_Replies_Importer_Config::get_instance();
 	}
 
+	public function init() {
+		add_action( 'mastodon_import_event', array( $this, 'fetch_and_import_mastodon_comments' ) );
+	}
+
 	/**
 	 * Get authorization URL.
 	 *
