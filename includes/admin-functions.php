@@ -86,6 +86,8 @@ class Mastodon_Replies_Importer_Admin {
 					<?php wp_nonce_field( 'mastodon_replies_importer_check_now', 'mastodon_replies_importer_nonce' ); ?>
 					<h3><?php esc_html_e( 'Manual Import', 'mastodon-replies-importer' ); ?></h3>
 					<?php submit_button( __( 'Check Now', 'mastodon-replies-importer' ), 'secondary', 'check_now' ); ?>
+				</form>
+				<form action='' method='post'>
 					<?php wp_nonce_field( 'mastodon_replies_importer_disconnect', 'mastodon_replies_importer_nonce' ); ?>
 					<?php submit_button( __( 'Disconnect', 'mastodon-replies-importer' ), 'secondary', 'disconnect' ); ?>
 				</form>
