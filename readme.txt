@@ -44,10 +44,10 @@ The plugin imports public replies to your Mastodon posts that contain a link to 
 
 == Changelog ==
 
-= 1.0 =
+= 0.0.1 =
 * Initial release
 
 == Upgrade Notice ==
 
-= 1.0 =
+= 0.0.1 =
 Initial release of the Mastodon Replies Importer plugin.
