@@ -3,7 +3,7 @@
  * Plugin Name: Mastodon Replies Importer
  * Plugin URI: https://odd.blog/mastodon-replies-importer/
  * Description: Imports replies from Mastodon as comments on WordPress posts.
- * Version: 1.0.0
+ * Version: 0.0.1
  * Author: Donncha Ó Caoimh
  * Author URI: https://odd.blog/
  * License: GPL v2 or later
