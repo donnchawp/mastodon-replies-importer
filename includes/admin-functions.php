@@ -17,6 +17,9 @@ class Mastodon_Replies_Importer_Admin {
 	}
 
 	public function init() {
+		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
+		add_action( 'admin_init', array( $this, 'settings_init' ) );
+		add_action( 'admin_init', array( $this, 'handle_actions' ) );
 		$this->api->init();
 	}
 

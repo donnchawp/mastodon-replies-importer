@@ -19,9 +19,6 @@ class MastodonReplyImporter {
 	 * Initialize the plugin.
 	 */
 	public function init() {
-		add_action( 'admin_menu', array( $this->admin_functions, 'add_admin_menu' ) );
-		add_action( 'admin_init', array( $this->admin_functions, 'settings_init' ) );
-		add_action( 'admin_init', array( $this->admin_functions, 'handle_actions' ) );
 		$this->admin_functions->init();
 	}
 }
