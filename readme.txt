@@ -1,5 +1,5 @@
 === Mastodon Replies Importer ===
-Contributors: Donncha O Caoimh
+Contributors: donncha
 Tags: mastodon, comments, social media, import
 Requires at least: 5.0
 Tested up to: 6.7
@@ -8,13 +8,13 @@ Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Import replies from your Mastodon posts as comments on your WordPress blog.
+Import replies from your Mastodon posts linking to your WordPress site as comments.
 
 == Description ==
 
-The Mastodon Replies Importer plugin allows you to automatically import replies to your Mastodon posts as comments on your WordPress blog. This plugin bridges the gap between your Mastodon presence and your WordPress site, enabling a seamless integration of discussions across platforms.
+The Mastodon Replies Importer plugin allows you to automatically import replies to your Mastodon posts that link to your site as comments on the mentioned posts. This plugin bridges the gap between your Mastodon presence and your WordPress site, enabling a seamless integration of discussions across platforms.
 
-Key features:
+== Key features ==
 
 * Connect your WordPress site to your Mastodon account
 * Automatically import Mastodon replies as WordPress comments
@@ -22,17 +22,26 @@ Key features:
 * Manually trigger imports when needed
 * Maintain the conversation thread structure from Mastodon
 
+== How to Use ==
+
+1. Share one of your WordPress posts on Mastodon.
+2. Reply to your Mastodon post or wait for others to reply.
+3. Return to the Mastodon Replies Importer settings page in your WordPress dashboard.
+4. Click the "Check Now" button to manually trigger an import.
+5. Within a few minutes, you should see the Mastodon replies appear as moderated comments on your WordPress post.
+
+
 == Installation ==
 
 1. Upload the plugin files to the `/wp-content/plugins/mastodon-replies-importer` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Use the Settings -> Mastodon Replies screen to configure the plugin.
+3. Use the Settings->Mastodon Replies Importer screen to configure the plugin.
 
 == Frequently Asked Questions ==
 
 = How do I connect my Mastodon account? =
 
-Navigate to the plugin settings, enter your Mastodon instance URL, and click "Authorize with Mastodon". You'll be redirected to your Mastodon instance to approve the connection.
+Navigate to the plugin settings page at Settings->Mastodon Replies Importer, enter your Mastodon instance URL, and click "Authorize with Mastodon". You'll be redirected to your Mastodon instance to approve the connection.
 
 = How often are replies imported? =
 
