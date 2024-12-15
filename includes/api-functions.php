@@ -40,11 +40,11 @@ class Mastodon_Replies_Importer_API {
 				}
 				return false;
 			}
-			$this->debug_log( 'saving client id and secret: ' . print_r( $app, true ) );
+			$this->debug_log( 'saving client id and secret ' . $app['client_id'] );
 			$this->config->set_connection_option( 'client_id', $app['client_id'] );
 			$this->config->set_connection_option( 'client_secret', $app['client_secret'] );
 		} else {
-			$this->debug_log( "client id and secret already saved: " . print_r( $this->connection_options, true ) );
+			$this->debug_log( "client id and secret already saved: " . $this->config->get_connection_option( 'client_id' ) );
 		}
 
 		$redirect_uri = admin_url( 'options-general.php?page=mastodon_replies_importer' );
@@ -170,10 +170,8 @@ class Mastodon_Replies_Importer_API {
 			}
 			$this->debug_log( 'checking for ' . $website_url );
 			preg_match_all( '/href=["\'](' . preg_quote( $website_url, '/' ) . '[^"\']+)["\']/', $content, $matches );
-			$this->debug_log( 'matches: ' . print_r( $matches, true ) );
 			$urls = array_unique( $matches[1] );
 			$this->debug_log( 'URL found in Mastodon post: ' . $content );
-			$this->debug_log( 'URLs: ' . print_r( $urls, true ) );
 			foreach ( $urls as $url ) {
 				// Check if the URL is from your website
 				if ( 0 !== strpos( $url, $website_url ) ) {

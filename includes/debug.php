@@ -13,7 +13,7 @@ trait Mastodon_Replies_Importer_Logger {
      */
 	public function debug_log( $message) {
 		if ( Mastodon_Replies_Importer_Config::get( 'debug_mode' ) ) {
-			error_log( $message );
+			error_log( $message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 	}
 
